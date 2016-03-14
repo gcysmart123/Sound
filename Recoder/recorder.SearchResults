@@ -1,0 +1,27 @@
+---- wch372_send2byte Matches (25 in 5 files) ----
+
+Adc.c:		  wch372_send2byte(0xA1, 0x01, 0x04);
+Adc.c:					wch372_send2byte(0xA1, 0x01, 0x05); //make sure shut down the phone truely when PC request re send the phone status
+Adc.c:					wch372_send2byte(0xA1, 0x01, tel_state);
+Adc.c:				wch372_send2byte(0xA1, 0x01, 0x05); //make sure shut down the phone truely
+Adc.c:				wch372_send2byte(0xA1, 0x01, tel_state);
+Mt8870.c:		case 1: wch372_send2byte(0xA2, 0x01, 0x31); break;
+Mt8870.c:		case 2: wch372_send2byte(0xA2, 0x01, 0x32); break;
+Mt8870.c:		case 3: wch372_send2byte(0xA2, 0x01, 0x33); break;
+Mt8870.c:		case 4: wch372_send2byte(0xA2, 0x01, 0x34); break;
+Mt8870.c:		case 5: wch372_send2byte(0xA2, 0x01, 0x35); break;
+Mt8870.c:		case 6: wch372_send2byte(0xA2, 0x01, 0x36); break;
+Mt8870.c:		case 7: wch372_send2byte(0xA2, 0x01, 0x37); break;
+Mt8870.c:		case 8: wch372_send2byte(0xA2, 0x01, 0x38); break;
+Mt8870.c:		case 9: wch372_send2byte(0xA2, 0x01, 0x39); break;
+Mt8870.c:		case 10: wch372_send2byte(0xA2, 0x01, 0x30); break;
+Mt8870.c:		//case 11: wch372_send2byte(0xA2, 0x01, 0x0b); break;
+Mt8870.c:		//case 12: wch372_send2byte(0xA2, 0x01, 0x0c); break;
+Mt8870.c:		//case 13: wch372_send2byte(0xA2, 0x01, 0x00); break;
+Mt8870.c:		//case 14: wch372_send2byte(0xA2, 0x01, 0x00); break;
+Mt8870.c:		//case 15: wch372_send2byte(0xA2, 0x01, 0x00); break;
+Usart.c:				//wch372_send2byte(0xA2,0x01,temp);
+Usart.c:					//wch372_send2byte(0xA2,0x01,ht9032_data[j]);
+Usart.c:					//wch372_send2byte(0xA2,0x01,ht9032_data[j]);
+Wch372.c:void wch372_send2byte(unsigned char function, unsigned char uesrdata1, unsigned char uesrdata2)
+Wch372.h:extern void wch372_send2byte(unsigned char function, unsigned char uesrdata1, unsigned char uesrdata2);

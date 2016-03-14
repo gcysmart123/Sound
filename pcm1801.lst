@@ -1,0 +1,143 @@
+C51 COMPILER V9.00   PCM1801                                                               03/12/2016 13:37:52 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PCM1801
+OBJECT MODULE PLACED IN pcm1801.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Recoder\pcm1801.c LARGE BROWSE INCDIR(.\Recoder) DEBUG OBJECTEXTEND PRINT(.
+                    -\pcm1801.lst) TABS(2) OBJECT(pcm1801.obj)
+
+line level    source
+
+   1          #include "pcm1801.h"
+   2          #include "wch372.h"
+   3          #include "usart.h"
+   4          
+   5          uint16_t val = 0;
+   6          uint16_t value = 0;
+   7          uint8_t spi_c = 0;
+   8          
+   9          uint8_t pc_request_voice_data = 0;
+  10          
+  11          void spi_isr() interrupt 9 using 1     //SPI interrupt routine 9 (004BH)
+  12          {
+  13   1        SPSTAT = SPIF | WCOL;       //clear SPI status
+  14   1      
+  15   1      #ifdef MASTER
+  16   1        // SPISS = 1;                  //push high slave SS
+  17   1        if (spi_c == 0) // 第一次读取数据
+  18   1        {
+  19   2          value |= SPDAT << 8;
+  20   2        }
+  21   1      #else                           //for salve (receive SPI data from master and
+                SPDAT = SPDAT;              //           send previous SPI data to master)
+              #endif
+  24   1      
+  25   1        if (spi_c == 1)
+  26   1        {
+  27   2          value |= SPDAT;
+  28   2          SPDAT = 0x55;
+  29   2          spi_c = 0;  
+  30   2          if (pc_request_voice_data == 1)
+  31   2          {
+  32   3            ch372_wr_cmd_port(CMD_WR_USB_DATA7);//单片机向ch372写入向usb写入数据的命令//
+  33   3            ch372_wr_dat_port(2);//告诉pc数据长度//
+  34   3            ch372_wr_dat_port(value >> 8);//pc机验证数据的正确性//
+  35   3            ch372_wr_dat_port(value);
+  36   3          }
+  37   2        }
+  38   1      }
+  39          
+  40          
+  41          void Init_Timer()
+  42          {
+  43   1        TMOD |= 0x20;            //???0,1???2
+  44   1        //AUXR |= 0x80;          //
+  45   1        AUXR |= 0x40;
+  46   1        //TH0 = 245;
+  47   1        TH1 = 252;
+  48   1      
+  49   1        WAKE_CLKO = WAKE_CLKO | 0X02;    //
+  50   1        EA = 1;     //?????
+  51   1      
+  52   1        //???????
+  53   1        TR1 = 1;
+  54   1        //ET0=1;
+C51 COMPILER V9.00   PCM1801                                                               03/12/2016 13:37:52 PAGE 2   
+
+  55   1      }
+  56          
+  57          void Init_pca()
+  58          {
+  59   1        CMOD = 0x02;         //   ??????????PCA FOSC / 2
+  60   1        //   ??PCA???????
+  61   1        CCON = 0x00;             //  ??PCA?????
+  62   1        //   PCA???????
+  63   1        //   ??CF???
+  64   1        //    ??????????
+  65   1        //   ??PCA???
+  66   1        CL = 0;
+  67   1        CH = 0;
+  68   1        CCAPM0 = 0x49;      //  PCA??0???16??????
+  69   1        val = T128KHz;
+  70   1        CCAP0L = val;
+  71   1        CCAP0H = val >> 8;    //   ??PCA??0
+  72   1        val += T128KHz;
+  73   1        EA = 1;
+  74   1        CR = 1;         //  PCA???????
+  75   1      }
+  76          
+  77          void PCA_isr() interrupt 7 using 1
+  78          {
+  79   1        
+  80   1        CCF0 = 0x00;                    //   ??????
+  81   1        CCAP0L = val;
+  82   1        CCAP0H = val >> 8;    //   ??PCA??0
+  83   1        val += T128KHz;
+  84   1        L3 = ~L3;
+  85   1      
+  86   1        // SPISS = 0; 
+  87   1        //pull low slave SS
+  88   1        //    if(line_up ==1)
+  89   1        {
+  90   2          spi_c = 1;
+  91   2          value = 0;
+  92   2          SPDAT = 0x55;                //trigger SPI send
+  93   2        }
+  94   1        // SPISS = 1;                  //push high slave SS
+  95   1      }
+  96          
+  97          void InitSPI()
+  98          {
+  99   1        SPDAT = 0;                  //initial SPI data
+ 100   1        SPSTAT = SPIF | WCOL;       //clear SPI status
+ 101   1      #ifdef MASTER
+ 102   1        SPCTL = SPEN | MSTR | SPDH | CPOL | CPHA;        //master mode
+ 103   1      #else
+                SPCTL = SPEN;               //slave mode
+              #endif
+ 106   1      }
+ 107          
+ 108          void PCM1801_Init()
+ 109          {
+ 110   1        Init_Timer();
+ 111   1        Init_pca();
+ 112   1        InitSPI();
+ 113   1        IE2 |= ESPI;
+ 114   1      }
+ 115          
+
+C51 COMPILER V9.00   PCM1801                                                               03/12/2016 13:37:52 PAGE 3   
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    254    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      6    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
